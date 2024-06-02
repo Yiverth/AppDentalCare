@@ -39,6 +39,7 @@
         android:layout_marginHorizontal="@dimen/default_margin"
         android:layout_marginTop="300dp"
         app:cardElevation="@dimen/card_elevation"
+        app:cardCornerRadius="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -85,6 +86,8 @@
         android:textColor="@color/white"
         android:textSize="@dimen/text_size"
         android:text="@string/forget_fragment_text_button"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:cornerRadius="20dp"
         android:backgroundTint="@color/green"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

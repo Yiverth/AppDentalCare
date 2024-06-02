@@ -40,6 +40,7 @@
         android:layout_marginTop="240dp"
         app:cardElevation="@dimen/card_elevation"
         app:layout_constraintEnd_toEndOf="parent"
+        app:cardCornerRadius="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="spread"
@@ -152,6 +153,7 @@
                     android:id="@+id/signup_fragment_male"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:buttonTint="@color/radio_button_color"
                     android:layout_weight="2"
                     android:text="@string/male_label" />
 
@@ -159,6 +161,7 @@
                     android:id="@+id/signup_fragment_female"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:buttonTint="@color/radio_button_color"
                     android:layout_weight="2"
                     android:text="@string/female_label" />
 
@@ -178,8 +181,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="@color/white"
+        app:cornerRadius="20dp"
         android:textSize="@dimen/text_size"
         android:text="@string/signup_fragment_text_button"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:backgroundTint="@color/green"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
