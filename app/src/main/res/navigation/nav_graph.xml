@@ -48,4 +48,34 @@
         android:name="com.yiverthdevs.dentalcare.HomeActivity"
         android:label="activity_home"
         tools:layout="@layout/activity_home" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.yiverthdevs.dentalcare.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_citaFragment"
+            app:destination="@id/citaFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_historialClinicoFragment"
+            app:destination="@id/historialClinicoFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_pagosFragment"
+            app:destination="@id/pagosFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/citaFragment"
+        android:name="com.yiverthdevs.dentalcare.CitaFragment"
+        android:label="CitaFragment"
+        tools:layout="@layout/fragment_cita"/>
+    <fragment
+        android:id="@+id/historialClinicoFragment"
+        android:name="com.yiverthdevs.dentalcare.HistorialClinicoFragment"
+        android:label="HistorialClinicoFragment"
+        tools:layout="@layout/fragment_historial_clinico"/>
+    <fragment
+        android:id="@+id/pagosFragment"
+        android:name="com.yiverthdevs.dentalcare.PagosFragment"
+        android:label="PagosFragment"
+        tools:layout="@layout/fragment_pagos"/>
 </navigation>

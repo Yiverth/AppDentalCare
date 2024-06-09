@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.os.Vibrator
+import android.os.VibrationEffect
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -11,11 +13,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import org.koin.androidx.fragment.android.replace
+
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -23,27 +24,33 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var fragmentManager: FragmentManager
+    private lateinit var vibrator: Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        /* configurar el color de la barra de estado */
+        // Se llama a la funcion onBottomNavigation
 
+        onBottomNavigation()
+
+        // Se instancia la propiedad de vibrator
+        vibrator = getSystemService(android.content.Context.VIBRATOR_SERVICE) as Vibrator
+
+        /* configurar el color de la barra de estado */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.decorView.systemUiVisibility=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            window.statusBarColor=ContextCompat.getColor(this,R.color.white)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         }
 
         /* configurar el color de la barra de navegacion */
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            window.decorView.systemUiVisibility=window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-            window.navigationBarColor=ContextCompat.getColor(this,R.color.white)
+            window.decorView.systemUiVisibility =
+                window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
         }
 
         /* configuracíon del toolbar*/
-
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -53,11 +60,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Se implementa la navegacion del icono usar dentro del toolbar
         val toolbarUser = findViewById<ImageView>(R.id.toolbar_user)
         toolbarUser.setOnClickListener {
-            val userFragment = UserFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmnet_container, userFragment)
-                .addToBackStack(null) // Esto permite volver al fragment anterior con boton de retroceso
-                .commit()
+
+            // Vibrar al precionar el boton
+            vibrate()
+
+            openFragment(UserFragment())
         }
         // Se instancia el boton navigationView (Se inicia)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -69,7 +76,8 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Se inicia el drawerLayout y se cierra respectivamente
         val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav)
+            this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav
+        )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -83,85 +91,44 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
             navigationView.setCheckedItem(R.id.nav_home)
         }
-            // Se configura la navegancion del boton navigationView en la barra inferior
-            bottomNavigationView.setOnItemSelectedListener { MenuItem ->
-                when (MenuItem.itemId) {
-                    R.id.button_nav_home -> {
-                        fragmentManager = supportFragmentManager
-                        openFragment(HomeFragment())
-                    }
 
-                    R.id.button_nav_location -> {
-                        fragmentManager = supportFragmentManager
-                        openFragment(UbicationFragment())
-                    }
+    }
+        // Se configura la navegancion del boton navigationView en la barra inferior
 
-                    R.id.button_nav_assistan -> {
-                        fragmentManager = supportFragmentManager
-                        openFragment(Asistente_virtual_fragment())
+        private fun onBottomNavigation() {
+            bottomNavigationView = findViewById(R.id.bottom_navigation)
+            bottomNavigationView.setOnItemSelectedListener { menuIten->
+                // Vibrar al precionar el boton
+                vibrate()
 
-                    }
-                    R.id.button_nav_phone -> {
-                        fragmentManager = supportFragmentManager
-                        openFragment(ContactoFragment())
-                    }
+                when(menuIten.itemId){
+                    R.id.button_nav_home->openFragment(HomeFragment())
+                    R.id.button_nav_location->openFragment(UbicationFragment())
+                    R.id.button_nav_assistan->openFragment(Asistente_virtual_fragment())
+                    R.id.button_nav_phone->openFragment(ContactoFragment())
                 }
                 true // Devuelve true para indicar que el evento se ha consumido
             }
         }
 
-
 // Se configura la navegacion del drawerLayout y toolbar (La barra superior)
 override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_home -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, HomeFragment())
-                    .commit()
-            }
-            R.id.nav_usuario -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, UserFragment())
-                    .commit()
-            }
-            R.id.nav_cita -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, CitaFragment())
-                    .commit()
-            }
-            R.id.nav_historialClinico -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, HistorialClinicoFragment())
-                    .commit()
-            }
-            R.id.nav_pagos -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, PagosFragment())
-                    .commit()
-            }
-            R.id.nav_especialistas -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, EspecialistasFragment())
-                    .commit()
-            }
-            R.id.nav_reportes -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, ReportesFragment())
-                    .commit()
-            }
-            R.id.nav_cancelarCitas -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmnet_container, CancelarCitaFragment())
-                    .commit()
-            }
-            R.id.nav_logout -> {
-                Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
-            }
-        }
 
-        drawerLayout.closeDrawer(GravityCompat.START)
-        return true // Devuelve true para indicar que el evento se ha consumido
+    vibrate()
+    when (item.itemId){
+        R.id.nav_home->openFragment(HomeFragment())
+        R.id.nav_usuario->openFragment(UserFragment())
+        R.id.nav_cita->openFragment(CitaFragment())
+        R.id.nav_historialClinico->openFragment(HistorialClinicoFragment())
+        R.id.nav_pagos->openFragment(PagosFragment())
+        R.id.nav_especialistas->openFragment(EspecialistasFragment())
+        R.id.nav_reportes->openFragment(ReportesFragment())
+        R.id.nav_cancelarCitas->openFragment(CancelarCitaFragment())
+        R.id.nav_logout->Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
     }
+    drawerLayout.closeDrawer(GravityCompat.START)
+    return true // Devuelve true para indicar que el evento se ha consumido
+}
 
     override fun onBackPressed() { // Se instancia el evento de abrir y cerrar el drawerLayout
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -177,4 +144,11 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
         transaction.replace(R.id.fragmnet_container, fragment)
         transaction.commit()
     }
+        private fun vibrate () {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(50,VibrationEffect.DEFAULT_AMPLITUDE))
+            }else {
+                vibrator.vibrate(50)
+            }
+        }
  }
