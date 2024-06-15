@@ -6,17 +6,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.yiverthdevs.dentalcare.imageData
 import com.yiverthdevs.dentalcare.R
+import com.yiverthdevs.dentalcare.imageData
 
-class ImageAdapter (private val images: List<imageData>):RecyclerView.Adapter<ImageAdapter.ImageViewHolder>(){
 
-    class ImageViewHolder (itemView: View):RecyclerView.ViewHolder(itemView) {
+class ImageAdapter(private val images: List<imageData>): RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+
+    class ImageViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.imageView)
-
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType:Int): ImageViewHolder{
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.slider_imagenes, parent, false)
         return ImageViewHolder(view)
     }
@@ -27,5 +27,4 @@ class ImageAdapter (private val images: List<imageData>):RecyclerView.Adapter<Im
     }
 
     override fun getItemCount(): Int = images.size
-
 }

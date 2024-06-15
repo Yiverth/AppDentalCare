@@ -16,24 +16,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DentalCare"
         tools:targetApi="31">
-        <activity
-            android:name=".HomeActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:exported="true" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+
+        <!-- Actividad de inicio -->
         <activity
             android:name=".StartMainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Otras actividades -->
+        <activity
+            android:name=".HomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="true"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- Clave API de Google Maps -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC0iROh8wF9LFv4PUEMx2a0REEcAaEkkns"/>
+
     </application>
 
 </manifest>

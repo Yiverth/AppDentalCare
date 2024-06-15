@@ -5,11 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.cardview.widget.CardView
-import android.os.Vibrator
 import android.os.VibrationEffect
+import android.os.Vibrator
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,6 +18,7 @@ import com.yiverthdevs.dentalcare.Adapter.ImageAdapter
 
 class HomeFragment : Fragment() {
 
+    /* Se inicializan las variables a utilizar */
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ImageAdapter
     private lateinit var vibrator: Vibrator
@@ -32,25 +33,21 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         recyclerView = view.findViewById(R.id.recyclerView)
-
         recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
 
         vibrator = requireActivity().getSystemService(android.content.Context.VIBRATOR_SERVICE) as Vibrator
 
         firestore = FirebaseFirestore.getInstance()
-
         loadImages()
 
-        // Se implementa la navegación de los botones desde Home
+        /* Se implementa la navegación de los botones desde el home */
         openFragmentHome(view, R.id.card_citas, CitaFragment())
         openFragmentHome(view, R.id.card_historial_clinico, HistorialClinicoFragment())
         openFragmentHome(view, R.id.card_pagos, PagosFragment())
 
-        openFragmentHome2(view, R.id.icon_especialistas, EspecialistasFragment())
-        openFragmentHome2(view, R.id.icon_reportes, ReportesFragment())
-        openFragmentHome2(view, R.id.icon_cancelar_cita, CancelarCitaFragment())
-
-
+        openFragmentHome2(view, R.id.icon_card_arrow_one, EspecialistasFragment())
+        openFragmentHome2(view, R.id.icon_card_arrow_two, ReportesFragment())
+        openFragmentHome2(view, R.id.icon_card_arrow_three, CancelarCitaFragment())
 
         return view
     }
@@ -60,55 +57,59 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { result ->
                 val images = mutableListOf<imageData>()
                 for (document in result) {
-                    val storageRef = FirebaseStorage.getInstance()
-                        .getReferenceFromUrl(document.getString("url") ?: "")
+                    val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(document.getString("url") ?: "")
                     storageRef.downloadUrl.addOnSuccessListener { uri ->
                         images.add(imageData(uri.toString()))
-                        // Una vez que todas las imagenes se han agregado, actualiza el adaptador
+                        // Una vez que todas las imágenes se han agregado, actualiza el adaptador
                         if (images.size == result.size()) {
                             adapter = ImageAdapter(images)
                             recyclerView.adapter = adapter
                         }
-                    }.addOnFailureListener { exception ->
-                        // Maneja la excepción aquí
+                    }.addOnFailureListener {
                         Toast.makeText(activity, "Error al cargar las imágenes: ${exception.message}", Toast.LENGTH_LONG).show()
                     }
                 }
-
             }
     }
 
+    /* Se crea una función para navegar a los fragmentos con la propiedad CardView */
+    private fun openFragmentHome(view: View, buttonId: Int, fragment: Fragment) {
+        val transactionHome = view.findViewById<CardView>(buttonId)
+        transactionHome.setOnClickListener {
 
-
-    private fun openFragmentHome (view: View, buttonId: Int, fragment: Fragment) {
-        val trasactionHome =  view.findViewById<CardView>(buttonId)
-        trasactionHome.setOnClickListener {
-            // Vibrar al precionar el botón
+            // Vibrar al presionar el botón
             vibrate()
+
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmnet_container, fragment)
                 .addToBackStack(null)
                 .commit()
+
         }
     }
+    /* Se crea una función para navegar a los fragmentos con la propiedad ImageView */
+    private fun openFragmentHome2(view: View, buttonId: Int, fragment: Fragment) {
+        val transactionHome2 = view.findViewById<ImageView>(buttonId)
+        transactionHome2.setOnClickListener {
 
-    private fun openFragmentHome2 (view: View, buttonId: Int, fragment: Fragment) {
-        val trasactionHome2 = view.findViewById<ImageView>(buttonId)
-        trasactionHome2.setOnClickListener {
-            // Vibrar al precionar el botón
+            // Vibrar al presionar el botón
             vibrate()
+
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmnet_container, fragment)
                 .addToBackStack(null)
                 .commit()
+
         }
     }
-
-    private fun vibrate () {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(50,VibrationEffect.DEFAULT_AMPLITUDE))
-        }else {
+    /* Se crea una función para manejar la vibración del CardView y ImageView */
+    private fun vibrate() {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
             vibrator.vibrate(50)
         }
     }
 }
+
+
