@@ -1,5 +1,6 @@
 package com.yiverthdevs.dentalcare
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -58,6 +59,14 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+
+                    // Guardar el estado de la sesion
+                    val sharePref = requireActivity().getSharedPreferences("DentalCare", Context.MODE_PRIVATE)
+                    with(sharePref.edit()){
+                        putBoolean("Sesion iniciada", true)
+                        apply()
+                    }
+
                     //Inicio de sesión exitoso, navegar al home activiti
                     findNavController().navigate(R.id.action_loginFragment_to_homeActivity)
                 } else {

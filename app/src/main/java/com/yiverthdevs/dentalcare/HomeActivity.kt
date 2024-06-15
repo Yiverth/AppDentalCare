@@ -1,4 +1,6 @@
 package com.yiverthdevs.dentalcare
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -31,7 +33,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_home)
 
         // Se llama a la funcion onBottomNavigation
-
         onBottomNavigation()
 
         // Se instancia la propiedad de vibrator
@@ -63,9 +64,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             // Vibrar al precionar el boton
             vibrate()
-
             openFragment(UserFragment())
         }
+
         // Se instancia el boton navigationView (Se inicia)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
 
@@ -94,10 +95,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
         // Se configura la navegancion del boton navigationView en la barra inferior
-
         private fun onBottomNavigation() {
             bottomNavigationView = findViewById(R.id.bottom_navigation)
             bottomNavigationView.setOnItemSelectedListener { menuIten->
+
                 // Vibrar al precionar el boton
                 vibrate()
 
@@ -124,7 +125,20 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
         R.id.nav_especialistas->openFragment(EspecialistasFragment())
         R.id.nav_reportes->openFragment(ReportesFragment())
         R.id.nav_cancelarCitas->openFragment(CancelarCitaFragment())
-        R.id.nav_logout->Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+        R.id.nav_logout -> {
+
+            // Eliminar el estado de la sesión
+            val sharedPref = getSharedPreferences("DentalCare", Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putBoolean("Sesion iniciada", false)
+                apply()
+            }
+
+            // Redirigir al LoginActivity
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish() // Para que no se pueda volver a la pantalla de home con el botón "atrás"
+        }
     }
     drawerLayout.closeDrawer(GravityCompat.START)
     return true // Devuelve true para indicar que el evento se ha consumido
@@ -141,7 +155,7 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
     // Remplaza el contenido del contenedor de fragmentos con un nuevo fragmento
     private fun openFragment(fragment: androidx.fragment.app.Fragment){
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmnet_container, fragment)
+        transaction.replace(R.id.fragmnet_container, fragment).addToBackStack(null)
         transaction.commit()
     }
         private fun vibrate () {
