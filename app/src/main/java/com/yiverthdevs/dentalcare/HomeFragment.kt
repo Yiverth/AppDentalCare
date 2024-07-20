@@ -9,6 +9,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +49,15 @@ class HomeFragment : Fragment() {
         openFragmentHome2(view, R.id.icon_card_arrow_one, EspecialistasFragment())
         openFragmentHome2(view, R.id.icon_card_arrow_two, ReportesFragment())
         openFragmentHome2(view, R.id.icon_card_arrow_three, CancelarCitaFragment())
+
+        // Manejo del boton del retroceso
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                //  Salir de la aplicación
+                requireActivity().finish()
+            }
+        })
+
 
         return view
     }

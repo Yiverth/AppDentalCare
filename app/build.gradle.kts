@@ -36,6 +36,10 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion="1.5.14"
     }
 }
 dependencies {
@@ -44,7 +48,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.9.24")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -64,6 +68,21 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage")
+
+    //jetpack compose
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation("androidx.compose.material:material")                     // MaterialDesign2
+    implementation("androidx.compose.ui:ui-tooling-preview")                 // Previsualizar composables
+    debugImplementation("androidx.compose.ui:ui-tooling")                    // Funcionalidades avazadas de depuración
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")          // Realizar pruebas unitarias a tus composables
+    debugImplementation("androidx.compose.ui:ui-test-manifest")              // funcionalidades avanzadas de pruebas unitarias
+    implementation("androidx.activity:activity-compose:1.9.0")               // Para integrar Compose con actividades de Android
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")   // Para usar ViewModels con Compose
+    implementation("androidx.compose.runtime:runtime-livedata")              // Para integrar LiveData con Compose
+    implementation("androidx.compose.runtime:runtime-rxjava2")               // Para integrar RxJava con Compose
 
     // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
