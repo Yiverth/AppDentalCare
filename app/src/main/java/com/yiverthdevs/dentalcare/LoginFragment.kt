@@ -13,8 +13,14 @@ import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.toObject
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
+    // Instancia de firebase fireStore para acceder a la base de datos
+    private val db = FirebaseFirestore.getInstance()
     private val TAG = "LoginFragment"
     private lateinit var binding: FragmentLoginBinding
     private lateinit var auth: FirebaseAuth
@@ -42,7 +48,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
         return view
     }
-
+    // Funcion que permite al usuario iniciar sesíon
     private fun loginUser() {
         val email = binding.loginFragmentEmail.text.toString()
         val password = binding.loginFragmentPassword.text.toString()
@@ -60,25 +66,77 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
 
-                    // Guardar el estado de la sesion
-                    val sharePref = requireActivity().getSharedPreferences("DentalCare", Context.MODE_PRIVATE)
-                    with(sharePref.edit()){
-                        putBoolean("Sesion iniciada", true)
-                        apply()
-                    }
+                    val user = auth.currentUser
+                    if (user != null) {
+                        // Guardar el estado de la sesion
+                        val sharePref = requireActivity().getSharedPreferences("DentalCare", Context.MODE_PRIVATE)
+                        with(sharePref.edit()){
+                            Toast.makeText(requireContext(),"Bienvenido a DentalCare",Toast.LENGTH_SHORT).show()
+                            putBoolean("Sesion iniciada", true)
+                            apply()
+                        }
+                        // Guardar o actualizar los datos del usuario
+                        saveUserData(user)
 
-                    //Inicio de sesión exitoso, navegar al home activiti
-                    findNavController().navigate(R.id.action_loginFragment_to_homeActivity)
+                        //Inicio de sesión exitoso, navegar al home activiti
+                        findNavController().navigate(R.id.action_loginFragment_to_homeActivity)
+                    }
                 } else {
 
                     //Error al iniciar sesión
-                    val email = task.exception
-                    if (email is FirebaseAuthInvalidCredentialsException) {
+                    val exception = task.exception
+                    if (exception is FirebaseAuthInvalidCredentialsException) {
                         //Correo electronico no valido.
                         Toast.makeText(requireContext(), "Correo electrónico o contraseña incorrecta", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
+
+    }
+    // Funcion que permite guardar los datos del usuario desde firebase
+    private fun saveUserData (user:FirebaseUser) {
+        val userId = user.uid // Variable del id
+        val userDocRef = db.collection("users").document(userId)// Variable de referencia
+
+        // Obtener los datos del usuario si ya existen
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Datos existentes del usuario
+                val existinData = document.toObject(UserData::class.java)
+                val updateData = UserData(
+                    userId = userId,
+                    name = existinData?.name ?: "",
+                    number = existinData?.number?: "",
+                    gender = existinData?.gender?: ""
+                )
+                // Guardar los datos actualizados
+                userDocRef.set(updateData)
+                    .addOnSuccessListener {
+                        Log.d(TAG,"Datos de usuario guardado correctamente")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d(TAG, "Error al guardar datos", e)
+                    }
+            } else {
+                // Si no existen datos, crear uno nuevo
+                val newData = UserData(
+                    userId = userId,
+                    name = "",
+                    number = "",
+                    gender = ""
+                )
+                userDocRef.set(newData)
+                    .addOnSuccessListener {
+                        Log.d(TAG,"Datos de usuario guardado correctamente")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d(TAG, "Error al guardar datos", e)
+                    }
+            }
+        }.addOnFailureListener { e ->
+            Log.d(TAG, "Error al obtener datos del usuario", e)
+        }
 
     }
 }

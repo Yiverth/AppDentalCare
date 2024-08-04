@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.os.Vibrator
 import android.os.VibrationEffect
+import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -18,6 +19,9 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -27,6 +31,8 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var fragmentManager: FragmentManager
     private lateinit var vibrator: Vibrator
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +97,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.fragmnet_container, HomeFragment())
                 .commit()
             navigationView.setCheckedItem(R.id.nav_home)
+        }
+        // Recuperar la informacion del usuario
+        auth.currentUser?.let { user ->
+            getUserData(user.uid)
         }
 
     }
@@ -165,4 +175,22 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
                 vibrator.vibrate(50)
             }
         }
+    //Funfion que permite obtener la informacion del usuario
+    private fun getUserData (userId: String){
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val user = document.toObject(UserData::class.java)
+                    if (user != null){
+                        Log.d("HomeActivity","UserData retriebe:: $user")
+                    }
+                }else {
+                    Log.d("HomeActivity","No succes document")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("HomeActivity","Error geting user data", e)
+            }
+
+    }
  }

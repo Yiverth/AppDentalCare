@@ -36,18 +36,19 @@ class CitaViewModel : ViewModel() {
     fun saveCita(citaData: citasData) {
 
         val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
-        val citaMap = hashMapOf(
-            "nombre" to citaData.nombre,
-            "correo" to citaData.correo,
-            "motivo" to citaData.motivo,
-            "fecha" to citaData.fecha,
-            "hora" to citaData.hora,
-            "estado" to citaData.estado,
-            "fechaRegistro" to currentDate
-        )
-
         val user = auth.currentUser
-        if (user != null) {
+
+        if (user != null){
+            val citaMap = hashMapOf(
+                "nombre" to citaData.nombre,
+                "correo" to citaData.correo,
+                "motivo" to citaData.motivo,
+                "fecha" to citaData.fecha,
+                "hora" to citaData.hora,
+                "estado" to citaData.estado,
+                "fechaRegistro" to currentDate,
+                "userId" to user.uid
+            )
             viewModelScope.launch(Dispatchers.IO) {
                 try{
                     db.collection("citas")
@@ -73,7 +74,13 @@ class CitaViewModel : ViewModel() {
         if (user != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    val result = db.collection("citas").get().await() // Obtiene las citas desde Firestore
+                    // Filtra las citas por el user id del usuario autenticado
+
+                    val result = db.collection("citas")
+                        .whereEqualTo("userId",user.uid) // Filtra por el userId
+                        .get()
+                        .await()
+
                     val citasList = result.documents.mapNotNull { document ->
                         val cita = document.toObject(citasData::class.java)
                         cita?.let {
