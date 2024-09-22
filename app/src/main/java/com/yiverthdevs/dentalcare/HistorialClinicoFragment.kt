@@ -1,82 +1,91 @@
 package com.yiverthdevs.dentalcare
 
 import CitaViewModel
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
-import java.util.Calendar
 
-class HistorialClinicoFragment : Fragment() {
+class HistorialClinicoFragment : Fragment(), NavigationListener {
 
     private val citaViewModel: CitaViewModel by viewModels()
-    // Variable privada citaViewModel para manejar el viewModel
+
+    // Implementación de la interfaz para navegar a la pantalla de cancelar cita
+    override fun navigateToCancelarCita(
+        motivo: String,
+        paciente: String,
+        fecha: String,
+        hora: String,
+        idCita: String
+    ) {
+        val bundle = Bundle().apply {
+            putString("motivo", motivo)
+            putString("paciente", paciente)
+            putString("fecha", fecha)
+            putString("hora", hora)
+            putString("idCita", idCita)
+        }
+
+        val cancelarCitaFragment = CancelarCitaFragment().apply {
+            arguments = bundle
+        }
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmnet_container, cancelarCitaFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return ComposeView(requireContext()).apply {
             setContent {
-                // configuracion de ui utilizando jeckpack compose
-                HistorialClinicoScreen(citaViewModel)// se le instancia la clase citaViewModel
+                // Pasar la instancia de la interfaz a la función composable
+                HistorialClinicoScreen(citaViewModel, this@HistorialClinicoFragment)
             }
         }
     }
 
-    //Metodo que se llama cuando la vista del fragmento ha sido creada
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         citaViewModel.fetchCitas() // Se visualiza el estado de la cita
-        // Manejo del boton del retroceso
+
+        // Manejo del botón de retroceso
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                //  Navega la homeFragment
+                // Navega al home
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragmnet_container, HomeFragment())
                     .commit()
@@ -85,55 +94,63 @@ class HistorialClinicoFragment : Fragment() {
     }
 }
 
+interface NavigationListener {
+    fun navigateToCancelarCita(
+        motivo: String,
+        paciente: String,
+        fecha: String,
+        hora: String,
+        hora1: String,
+    )
+}
+
 val CustomGreentwo = Color(0xFF009E0F) // Para realizada
 val CustomOrange = Color(0xFFFF9800) // Para pendiente
 
 @Composable
-fun HistorialClinicoScreen(citaViewModel: CitaViewModel) {
-    // Observa el estado de las citas desde el view model
-    val citas by citaViewModel.citas.observeAsState (initial = emptyList())
+fun HistorialClinicoScreen(citaViewModel: CitaViewModel, navigationListener: NavigationListener) {
 
-    // Lista donde se visualizan las Card creadas para el historial de las citas
+    // Observa el estado de las citas desde el viewModel
+    val citas by citaViewModel.citas.observeAsState(initial = emptyList())
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 60.dp)
-    )
-    {
+    ) {
         items(citas) { cita ->
-            CitaCard(cita) // Se llama la funcion CitaCard, la cual tiene la ui el diseño de la card
+            CitaCard(cita, navigationListener)
         }
     }
 }
-@Composable
-fun CitaCard(cita:citasData){
 
-    // condicion que segun el estado de la cita se visualiza un determinado color
-    val estadoColor = when (cita.estado){
-        "Realizada" -> CustomGreentwo // Color verde
-        "Pendiente" -> CustomOrange // Color naranja
-        else -> Color.Black // Color negro
+@Composable
+fun CitaCard(cita: citasData, navigationListener: NavigationListener) {
+    val estadoActual = cita.estado
+    val estadoColor = when (cita.estado) {
+        "Realizada" -> CustomGreentwo   // Color Verde
+        "Pendiente" -> CustomOrange     // Color Naranja
+        else -> Color.Black             // Color Negro
     }
-    // Tarjeta (Card) que muestra los detalles de la cita
+    // Tarjeta (Card) que muestre los detalles de la cita
     Card(
         elevation = 4.dp,
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
-    ){
-        Column (
+    ) {
+        Column(
             modifier = Modifier
                 .padding(16.dp)
-        ){
-
-            Row (
+        ) {
+            Row(
                 modifier = Modifier
                     .padding(bottom = 4.dp)
                     .fillMaxWidth()
             ) {
-                Text (
+                Text(
                     text = "Su cita se agendo el:",
-                    color = CustomBlack,
+                    color = Color.Black,
                     fontSize = 17.sp,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier
@@ -141,75 +158,75 @@ fun CitaCard(cita:citasData){
                 )
                 Text(
                     text = "${cita.fechaRegistro}",
-                    color = CustomBlack,
+                    color = Color.Black,
                     style = MaterialTheme.typography.body2,
                     fontSize = 17.sp
                 )
             }
-            // Linea divisora
-            Divider(
-                color = Color.Gray,
-                thickness = 1.dp, // Para dar grosor a la linea
+            // Línea divisora
+            Divider(color = Color.Gray, thickness = 1.dp)
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Nombre: ${cita.nombre}",
                 modifier = Modifier
                     .padding(bottom = 4.dp)
             )
             Text(
-                text = "Nombre: ${cita.nombre}",// Nombre del paciente
+                text = "Correo: ${cita.correo}",
                 modifier = Modifier
                     .padding(bottom = 4.dp)
             )
             Text(
-                text = "Correo: ${cita.correo}",// Correo del paciente
+                text = "Motivo: ${cita.motivo}",
                 modifier = Modifier
                     .padding(bottom = 4.dp)
             )
             Text(
-                text = "Motivo: ${cita.motivo}",// Motivo que ingreso el paciente
+                text = "Fecha: ${cita.fecha}",
                 modifier = Modifier
                     .padding(bottom = 4.dp)
             )
-            Text(
-                text = "Fecha: ${cita.fecha}",// Fecha que selecciono el paciente
-                modifier = Modifier
-                    .padding(bottom = 4.dp)
-            )
-            Row (
+            Row(
                 modifier = Modifier
                     .padding(bottom = 4.dp)
                     .fillMaxWidth()
-            ){
+            ) {
                 Text(
-                    text = "Hora: ${cita.hora}",// Hora que selecciono el paciente
+                    text = "Hora: ${cita.hora}",
                     modifier = Modifier
                         .weight(1f)
                 )
                 Text(
-                    text = "${cita.estado}",// Se viasualiza el estado de la cita
-                    color = estadoColor,// Color del estado, segun logica aplicada
+                    text = "${cita.estado}",
+                    color = estadoColor,
                     style = MaterialTheme.typography.body2,
                     fontSize = 15.sp
                 )
+                if (estadoActual == "Pendiente"){
+                    IconButton(
+                        onClick = {
+                            navigationListener.navigateToCancelarCita(
+                                cita.motivo,
+                                cita.nombre,
+                                cita.fecha,
+                                cita.hora,
+                                cita.idCita, // Pasa el ID del documento aquí
+                            )
+                        },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.delete),
+                            contentDescription = "Cancelar Cita",
+                            tint = Color.Red
+                        )
+
+                    }
+
+                }else { null
+
+                }
             }
-        }
-    }
-}
-@Preview (showBackground = true)
-@Composable
-fun HistorialClinicoScreen() {
-    val citasPrueba = listOf(
-        citasData(nombre = "Carlos", correo = "carlos@example.com", motivo = "Consulta", fecha = "10/07/2023", hora = "10:00 AM", estado = "Pendiente"),
-        citasData(nombre = "Carlos", correo = "carlos@example.com", motivo = "Consulta", fecha = "10/07/2023", hora = "10:00 AM", estado = "Pendiente")
-
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    )
-    {
-        items(citasPrueba) { cita ->
-            CitaCard(cita)
         }
     }
 }

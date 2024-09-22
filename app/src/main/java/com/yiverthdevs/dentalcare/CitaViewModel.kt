@@ -19,6 +19,9 @@ class CitaViewModel : ViewModel() {
     // Instancia de Firebase Firestore para acceder a la base de datos
     private val db = FirebaseFirestore.getInstance()
 
+    private val _citaEliminada = MutableLiveData<Boolean>()
+    val citaEliminada: LiveData<Boolean> = _citaEliminada
+
     // Instancia de Firebase Authentication para la autenticación de usuarios
     private val auth = FirebaseAuth.getInstance()
 
@@ -38,7 +41,7 @@ class CitaViewModel : ViewModel() {
         val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("d/M/yyyy"))
         val user = auth.currentUser
 
-        if (user != null){
+        if (user != null) {
             val citaMap = hashMapOf(
                 "nombre" to citaData.nombre,
                 "correo" to citaData.correo,
@@ -50,7 +53,7 @@ class CitaViewModel : ViewModel() {
                 "userId" to user.uid
             )
             viewModelScope.launch(Dispatchers.IO) {
-                try{
+                try {
                     db.collection("citas")
                         .add(citaMap)
                         .await()
@@ -67,6 +70,7 @@ class CitaViewModel : ViewModel() {
             _saveCitaResult.postValue(Result.failure(Exception("No hay un usuario autenticado")))
         }
     }
+
     // Función para obtener las citas desde Firestore
     fun fetchCitas() {
         // Comprueba que el usuario esté autenticado
@@ -77,22 +81,33 @@ class CitaViewModel : ViewModel() {
                     // Filtra las citas por el user id del usuario autenticado
 
                     val result = db.collection("citas")
-                        .whereEqualTo("userId",user.uid) // Filtra por el userId
+                        .whereEqualTo("userId", user.uid) // Filtra por el userId
                         .get()
                         .await()
 
                     val citasList = result.documents.mapNotNull { document ->
-                        val cita = document.toObject(citasData::class.java)
+                        val cita = document.toObject(citasData::class.java)?.copy(idCita = document.id) // Agregar el ID de la cita
                         cita?.let {
                             val estadoActualizado = getCitaEstado(it.fecha, it.hora)
-                            val citaConEstado = it.copy(estado = estadoActualizado) // Guarda el estado actual de la cita
+                            val citaConEstado =
+                                it.copy(estado = estadoActualizado) // Guarda el estado actual de la cita
 
                             if (it.estado != estadoActualizado) {
                                 try {
-                                    document.reference.update("estado", estadoActualizado)  // Actualiza el estado de la cita en Firestore
-                                    Log.d("CitaViewModel", "Estado de cita actualizado: ${cita.fecha} ${cita.hora} -> $estadoActualizado")
+                                    document.reference.update(
+                                        "estado",
+                                        estadoActualizado
+                                    )  // Actualiza el estado de la cita en Firestore
+                                    Log.d(
+                                        "CitaViewModel",
+                                        "Estado de cita actualizado: ${cita.fecha} ${cita.hora} -> $estadoActualizado"
+                                    )
                                 } catch (e: Exception) {
-                                    Log.e("CitaViewModel", "Error al actualizar estado de la cita", e)
+                                    Log.e(
+                                        "CitaViewModel",
+                                        "Error al actualizar estado de la cita",
+                                        e
+                                    )
                                 }
                             }
                             citaConEstado
@@ -111,10 +126,14 @@ class CitaViewModel : ViewModel() {
     // Función que determina el estado de una cita basada en la fecha y hora
     private fun getCitaEstado(fecha: String, hora: String): String {  // Parametros (Fecha y Hora)
         return try {
-            val currentDateTime = LocalDateTime.now()  // Variable que almecena la fecha y hora actual
+            val currentDateTime =
+                LocalDateTime.now()  // Variable que almecena la fecha y hora actual
             val dateTimeString = "$fecha $hora"
             Log.d("CitaViewModel", "Parsing date and time: $dateTimeString")  // Log para depuración
-            Log.d("CitaViewModel", "Using format: ${formatter.toString()}")  // Log para verificar patrón del formato
+            Log.d(
+                "CitaViewModel",
+                "Using format: ${formatter.toString()}"
+            )  // Log para verificar patrón del formato
 
             // Compara la fecha y hora de la cita con la fecha y hora actuales
             val citaDateTime = LocalDateTime.parse(dateTimeString, formatter)
@@ -123,17 +142,26 @@ class CitaViewModel : ViewModel() {
             when {
                 // Si la fecha y hora de la cita ya paso devuelve "Relizada"
                 citaDateTime.isBefore(currentDateTime) -> {
-                    Log.d("CitaViewModel", "Cita pasada: $dateTimeString")  // Log para hacer pruebas
+                    Log.d(
+                        "CitaViewModel",
+                        "Cita pasada: $dateTimeString"
+                    )  // Log para hacer pruebas
                     "Realizada"
                 }
                 // Si la fecha y hora son las mismas devuelve "En curso"
                 citaDateTime.isEqual(currentDateTime) -> {
-                    Log.d("CitaViewModel", "Cita en curso: $dateTimeString") // Log para hacer pruebas
+                    Log.d(
+                        "CitaViewModel",
+                        "Cita en curso: $dateTimeString"
+                    ) // Log para hacer pruebas
                     "En Curso"
                 }
                 // En caso de que no se cumplan las condiciones anteriores devuelve "Pendiente"
                 else -> {
-                    Log.d("CitaViewModel", "Cita pendiente: $dateTimeString")  // Log para hacer pruebas
+                    Log.d(
+                        "CitaViewModel",
+                        "Cita pendiente: $dateTimeString"
+                    )  // Log para hacer pruebas
                     "Pendiente"
                 }
             }
@@ -142,5 +170,33 @@ class CitaViewModel : ViewModel() {
             Log.e("CitaViewModel", "Error en el formato: ${e.message}")  // Log para hacer pruebas
             "Error en fecha"
         }
+    }
+
+    fun eliminarCita(idCita: String) {
+        val user = FirebaseAuth.getInstance().currentUser // Obtener el usuario autenticado
+
+        // Verificar si el usuario está autenticado
+        if (user != null) {
+            val db = FirebaseFirestore.getInstance()
+
+            db.collection("citas").document(idCita)
+                .delete()
+                .addOnSuccessListener {
+                    _citaEliminada.value = true // Notifica que la cita fue eliminada
+                }
+                .addOnFailureListener { exception ->
+                    _citaEliminada.value = false // Notifica que hubo un error
+                    Log.e("CitaViewModel", "Error al eliminar la cita", exception)
+                }
+        } else {
+            _citaEliminada.value = false // Notifica que el usuario no está autenticado
+            Log.e("CitaViewModel", "Usuario no autenticado")
+        }
+    }
+
+
+    // Función para resetear el estado si es necesario
+    fun resetCitaEliminada() {
+        _citaEliminada.value = null
     }
 }

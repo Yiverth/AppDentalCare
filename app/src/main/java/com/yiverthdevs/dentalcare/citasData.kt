@@ -2,6 +2,7 @@ package com.yiverthdevs.dentalcare
 
 // Definicion de la clase de datos "citasData"
 data class citasData(
+    val idCita: String = "", // Campo para almacenar el ID de la cita
     val nombre: String = "",
     val correo: String = "",
     val motivo: String = "",

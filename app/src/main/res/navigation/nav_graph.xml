@@ -72,10 +72,22 @@
         android:id="@+id/historialClinicoFragment"
         android:name="com.yiverthdevs.dentalcare.HistorialClinicoFragment"
         android:label="HistorialClinicoFragment"
-        tools:layout="@layout/fragment_historial_clinico"/>
+        tools:layout="@layout/fragment_historial_clinico">
+        <action
+            android:id="@+id/action_historialClinicoFragment_to_cancelarCitaFragment"
+            app:destination="@id/cancelarCitaFragment" />
+    </fragment>
     <fragment
         android:id="@+id/pagosFragment"
         android:name="com.yiverthdevs.dentalcare.PagosFragment"
         android:label="PagosFragment"
         tools:layout="@layout/fragment_pagos"/>
+    <fragment
+        android:id="@+id/cancelarCitaFragment"
+        android:name="com.yiverthdevs.dentalcare.CancelarCitaFragment"
+        android:label="CancelarCitaFragment" >
+        <action
+            android:id="@+id/action_cancelarCitaFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>

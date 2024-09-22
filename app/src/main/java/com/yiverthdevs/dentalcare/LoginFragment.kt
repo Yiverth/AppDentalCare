@@ -59,6 +59,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 "Por favor completa todos los campos",
                 Toast.LENGTH_SHORT
             ).show()
+            Log.e(TAG,"Por favor completa todos los campos")
             return
         }
 
@@ -72,6 +73,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         val sharePref = requireActivity().getSharedPreferences("DentalCare", Context.MODE_PRIVATE)
                         with(sharePref.edit()){
                             Toast.makeText(requireContext(),"Bienvenido a DentalCare",Toast.LENGTH_SHORT).show()
+                            Log.i(TAG, "Usuario ingresa correctamente")
                             putBoolean("Sesion iniciada", true)
                             apply()
                         }
@@ -88,6 +90,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     if (exception is FirebaseAuthInvalidCredentialsException) {
                         //Correo electronico no valido.
                         Toast.makeText(requireContext(), "Correo electrónico o contraseña incorrecta", Toast.LENGTH_SHORT).show()
+                        Log.e(TAG,"Correo electrónico o contraseña incorrecta")
                     }
                 }
             }
@@ -108,7 +111,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     userId = userId,
                     name = existinData?.name ?: "",
                     number = existinData?.number?: "",
-                    gender = existinData?.gender?: ""
+                    gender = existinData?.gender?: "",
+                    photoUrl = existinData?.photoUrl?: ""
                 )
                 // Guardar los datos actualizados
                 userDocRef.set(updateData)
@@ -124,7 +128,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     userId = userId,
                     name = "",
                     number = "",
-                    gender = ""
+                    gender = "",
+                    photoUrl = ""
                 )
                 userDocRef.set(newData)
                     .addOnSuccessListener {

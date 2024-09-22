@@ -24,4 +24,7 @@
     <string name="open_nav">Abrir Barra de navegaciob</string>
     <string name="close_nav">Cerrar Barra de Navegacion</string>
 
+    <!-- Mensaje de cancelacion de cita -->
+    <string name="text_info_cita">Por favor, tenga en cuenta que al eliminar su cita, esta será removida de nuestra base de datos de forma permanente y no podrá ser recuperada. Si lo desea, deberá programar una nueva cita.</string>
+
 </resources>

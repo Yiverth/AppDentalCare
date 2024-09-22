@@ -10,6 +10,7 @@ import android.os.Vibrator
 import android.os.VibrationEffect
 import android.util.Log
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
@@ -17,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -102,8 +104,8 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         auth.currentUser?.let { user ->
             getUserData(user.uid)
         }
-
     }
+
         // Se configura la navegancion del boton navigationView en la barra inferior
         private fun onBottomNavigation() {
             bottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -183,6 +185,10 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
                     val user = document.toObject(UserData::class.java)
                     if (user != null){
                         Log.d("HomeActivity","UserData retriebe:: $user")
+
+                        // Actualizar la UI con la informacion del usuario
+                        updateHeader(user)
+                        updateImageTooblar(user)
                     }
                 }else {
                     Log.d("HomeActivity","No succes document")
@@ -193,4 +199,45 @@ override fun onNavigationItemSelected(item: MenuItem): Boolean {
             }
 
     }
- }
+    private fun updateHeader(user: UserData){
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val headerView = navigationView.getHeaderView(0)
+        val headerName = headerView.findViewById<TextView>(R.id.header_name)
+        val headerEmail = headerView.findViewById<TextView>(R.id.header_email)
+        val headerImage = headerView.findViewById<ImageView>(R.id.header_image)
+        // Obtener el correo electronico desde firebaseAuth
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
+        headerName.text = user.name
+        headerEmail.text = userEmail ?: "Email no disponible"
+        Log.d("updateHeader", "Url: ${user.photoUrl}")
+
+        //Cargar la imagen con navhider usando glide
+        if (!user.photoUrl.isNullOrEmpty()){
+            Glide.with(this)
+                .load(user.photoUrl)
+                .placeholder(R.drawable.nav_user) // Imagen por defecto mietras se carga
+                .error(R.drawable.nav_user) // Imagen por defecto en caso de error
+                .circleCrop() // Recorta en forma circular
+                .into(headerImage)
+        }else { // Si no hay url usar imagen por defecto
+            headerImage.setImageResource(R.drawable.nav_user)
+        }
+    }
+    // Cargar la imagen en el tooblar_user usando glide
+    private fun updateImageTooblar (user: UserData){
+        val toolbarImage: ImageView = findViewById(R.id.toolbar_user)
+
+        if (!user.photoUrl.isNullOrEmpty()){
+            Glide.with(this)
+                .load(user.photoUrl)
+                .placeholder(R.drawable.nav_user)
+                .error(R.drawable.nav_user)
+                .circleCrop()
+                .into(toolbarImage)
+        }else {
+            toolbarImage.setImageResource(R.drawable.nav_user)
+        }
+    }
+
+}

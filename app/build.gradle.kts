@@ -45,8 +45,9 @@ android {
 dependencies {
 
     //glide
-    implementation ("com.github.bumptech.glide:glide:4.12.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation("androidx.test.ext:junit-ktx:1.2.1")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 
     implementation("androidx.core:core-ktx:1.9.24")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -83,6 +84,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")   // Para usar ViewModels con Compose
     implementation("androidx.compose.runtime:runtime-livedata")              // Para integrar LiveData con Compose
     implementation("androidx.compose.runtime:runtime-rxjava2")               // Para integrar RxJava con Compose
+    implementation("io.coil-kt:coil-compose:2.1.0")                          //
 
     // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
@@ -91,4 +93,14 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Herramienta de prueba Espresso
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation ("androidx.test:runner:1.5.2")
+    androidTestImplementation ("androidx.test:rules:1.5.2")
+
+    // Si utilizas RecyclerView
+    androidTestImplementation ("androidx.test.espresso:espresso-contrib:3.5.1")
+
 }
