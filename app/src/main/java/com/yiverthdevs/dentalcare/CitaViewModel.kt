@@ -33,6 +33,8 @@ class CitaViewModel : ViewModel() {
     private val _citas = MutableLiveData<List<citasData>>()
     val citas: LiveData<List<citasData>> = _citas
 
+
+
     // Variable que almacena el formato de fechas y horas
     private val formatter = DateTimeFormatter.ofPattern("d/M/yyyy h:mm a", Locale.US)
 

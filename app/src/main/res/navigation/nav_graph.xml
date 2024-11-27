@@ -81,7 +81,11 @@
         android:id="@+id/pagosFragment"
         android:name="com.yiverthdevs.dentalcare.PagosFragment"
         android:label="PagosFragment"
-        tools:layout="@layout/fragment_pagos"/>
+        tools:layout="@layout/fragment_pagos">
+        <action
+            android:id="@+id/action_pagosFragment_to_reportesFragment"
+            app:destination="@id/reportesFragment" />
+    </fragment>
     <fragment
         android:id="@+id/cancelarCitaFragment"
         android:name="com.yiverthdevs.dentalcare.CancelarCitaFragment"
@@ -90,4 +94,8 @@
             android:id="@+id/action_cancelarCitaFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/reportesFragment"
+        android:name="com.yiverthdevs.dentalcare.ReportesFragment"
+        android:label="ReportesFragment" />
 </navigation>

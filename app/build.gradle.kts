@@ -70,6 +70,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage")
 
+    // Biblioteca para leer PDF
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+
     //jetpack compose
     val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)
@@ -102,5 +105,8 @@ dependencies {
 
     // Si utilizas RecyclerView
     androidTestImplementation ("androidx.test.espresso:espresso-contrib:3.5.1")
+
+    // Gemini AI 1.5 pro
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
 }

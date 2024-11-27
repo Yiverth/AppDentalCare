@@ -1,4 +1,5 @@
 package com.yiverthdevs.dentalcare
+import PagosFragment
 import android.content.Context
 import android.content.Intent
 import android.os.Build

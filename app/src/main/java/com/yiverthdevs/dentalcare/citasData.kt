@@ -10,5 +10,7 @@ data class citasData(
     val hora: String = "",
     val estado: String = "",
     val fechaRegistro: String = "",
-    val userId: String = ""
+    val userId: String = "",
+    val precio: Int = 0, // campo para almacenar el precio de la cita
+    var isPaid: Boolean = false // Nuevo campo
 )
